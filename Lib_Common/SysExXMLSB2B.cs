@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.IO;
-
+using System.Linq;
 namespace NSysDB
 {
     namespace NTSQL
@@ -76,41 +76,44 @@ namespace NSysDB
                     for (int i = 0; i < dvResultD.Count; i++)
                     {
                         strXMLD += "<ProductItem>" + Environment.NewLine
-                            //+ "<!-- 品名 -->" + Environment.NewLine
-                            + "<Description>" + Convert.ToString(dvResultD.Table.Rows[i]["DDescription"]) + "</Description>" + Environment.NewLine
-                            //+ "<!-- 數量 -->" + Environment.NewLine
-                            + "<Quantity>" + Convert.ToString(dvResultD.Table.Rows[i]["DQuantity"]) + "</Quantity>" + Environment.NewLine
-                            //+ "<!-- 單價 -->" + Environment.NewLine
-                            + "<UnitPrice>" + Convert.ToString(dvResultD.Table.Rows[i]["DUnitPrice"]) + "</UnitPrice>" + Environment.NewLine
-                            //+ "<!-- 金額 -->" + Environment.NewLine
-                            + "<Amount>" + Convert.ToString(dvResultD.Table.Rows[i]["DAmount"]) + "</Amount>" + Environment.NewLine
-                            //+ "<!-- 明細排列序號 -->" + Environment.NewLine
-                            + "<SequenceNumber>" + Convert.ToString(dvResultD.Table.Rows[i]["DSequenceNumber"]) + "</SequenceNumber>" + Environment.NewLine
-                            + "</ProductItem>" + Environment.NewLine;
+                  //+ "<!-- 品名 -->" + Environment.NewLine
+                  + "<Description>" + Convert.ToString(dvResultD.Table.Rows[i]["DDescription"]) + "</Description>" + Environment.NewLine
+                  //+ "<!-- 數量 -->" + Environment.NewLine
+                  + "<Quantity>" + Convert.ToString(dvResultD.Table.Rows[i]["DQuantity"]) + "</Quantity>" + Environment.NewLine
+                  //+ "<!-- 單價 -->" + Environment.NewLine
+                  + "<UnitPrice>" + Convert.ToString(dvResultD.Table.Rows[i]["DUnitPrice"]) + "</UnitPrice>" + Environment.NewLine
+                  //+ "<!-- 金額 -->" + Environment.NewLine
+                  + "<Amount>" + Convert.ToString(dvResultD.Table.Rows[i]["DAmount"]) + "</Amount>" + Environment.NewLine
+                  //+ "<!-- 明細排列序號 -->" + Environment.NewLine
+                  + "<SequenceNumber>" + Convert.ToString(dvResultD.Table.Rows[i]["DSequenceNumber"]) + "</SequenceNumber>" + Environment.NewLine
+                  + "</ProductItem>" + Environment.NewLine;
                     }
 
+                    if (string.IsNullOrEmpty(Convert.ToString(dvResultM.Table.Rows[0]["ATaxType"])))
+                        throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]) + "發票稅別為空值，停止XML生成作業。");
+
                     strXMLA = "</Details>" + Environment.NewLine
-                   + "<Amount>" + Environment.NewLine
-                   //+ "<!-- 銷售額合計(新台幣)B2B:未稅  B2C:內含稅 -->" + Environment.NewLine
-                   + "<SalesAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ASalesAmount"]) + "</SalesAmount>" + Environment.NewLine
-                   //+ "<!-- 課稅別 -->" + Environment.NewLine
-                   + "<TaxType>" + Convert.ToString(dvResultM.Table.Rows[0]["ATaxType"]) + "</TaxType>" + Environment.NewLine
-                   //+ "<!-- 稅率 -->" + Environment.NewLine
-                   + "<TaxRate>" + Convert.ToString(dvResultM.Table.Rows[0]["ATaxRate"]) + "</TaxRate>" + Environment.NewLine
-                   //+ "<!-- 營業稅 -->" + Environment.NewLine
-                   + "<TaxAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ATaxAmount"]) + "</TaxAmount>" + Environment.NewLine
-                   //+ "<!-- 總計 -->" + Environment.NewLine
-                   + "<TotalAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ATotalAmount"]) + "</TotalAmount>" + Environment.NewLine
-                   //+ "<!-- 扣抵金額 -->" + Environment.NewLine
-                   + "<DiscountAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ADiscountAmount"]) + "</DiscountAmount>" + Environment.NewLine
-                   //+ "<!-- 原幣金額 -->" + Environment.NewLine
-                   + "<OriginalCurrencyAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["AOriginalCurrencyAmount"]) + "</OriginalCurrencyAmount>" + Environment.NewLine
-                   //+ "<!-- 匯率 -->" + Environment.NewLine
-                   + "<ExchangeRate>" + Convert.ToString(dvResultM.Table.Rows[0]["AExchangeRate"]) + "</ExchangeRate>" + Environment.NewLine
-                   //+ "<!-- 幣別 -->" + Environment.NewLine
-                   + "<Currency>" + Convert.ToString(dvResultM.Table.Rows[0]["ACurrency"]) + "</Currency>" + Environment.NewLine
-                   + "</Amount>" + Environment.NewLine
-                   + "</Invoice>";
+    + "<Amount>" + Environment.NewLine
+    //+ "<!-- 銷售額合計(新台幣)B2B:未稅  B2C:內含稅 -->" + Environment.NewLine
+    + "<SalesAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ASalesAmount"]) + "</SalesAmount>" + Environment.NewLine
+    //+ "<!-- 課稅別 -->" + Environment.NewLine
+    + "<TaxType>" + Convert.ToString(dvResultM.Table.Rows[0]["ATaxType"]) + "</TaxType>" + Environment.NewLine
+    //+ "<!-- 稅率 -->" + Environment.NewLine
+    + "<TaxRate>" + Convert.ToString(dvResultM.Table.Rows[0]["ATaxRate"]) + "</TaxRate>" + Environment.NewLine
+    //+ "<!-- 營業稅 -->" + Environment.NewLine
+    + "<TaxAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ATaxAmount"]) + "</TaxAmount>" + Environment.NewLine
+    //+ "<!-- 總計 -->" + Environment.NewLine
+    + "<TotalAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ATotalAmount"]) + "</TotalAmount>" + Environment.NewLine
+    //+ "<!-- 扣抵金額 -->" + Environment.NewLine
+    + "<DiscountAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["ADiscountAmount"]) + "</DiscountAmount>" + Environment.NewLine
+    //+ "<!-- 原幣金額 -->" + Environment.NewLine
+    + "<OriginalCurrencyAmount>" + Convert.ToString(dvResultM.Table.Rows[0]["AOriginalCurrencyAmount"]) + "</OriginalCurrencyAmount>" + Environment.NewLine
+    //+ "<!-- 匯率 -->" + Environment.NewLine
+    + "<ExchangeRate>" + Convert.ToString(dvResultM.Table.Rows[0]["AExchangeRate"]) + "</ExchangeRate>" + Environment.NewLine
+    //+ "<!-- 幣別 -->" + Environment.NewLine
+    + "<Currency>" + Convert.ToString(dvResultM.Table.Rows[0]["ACurrency"]) + "</Currency>" + Environment.NewLine
+    + "</Amount>" + Environment.NewLine
+    + "</Invoice>";
 
                     strXMLAll = strXMLM + strXMLD + strXMLA;
                     //Console.WriteLine(strXMLAll);
@@ -126,6 +129,8 @@ namespace NSysDB
                     return false;
                 }
             }
+
+
 
             public bool ExXmlA0501(string ASN, string MInvoiceNumber, string sKind0up, string sKind0upAll, string sPgSN)
             {
@@ -257,6 +262,10 @@ namespace NSysDB
 
                     for (int i = 0; i < dvResultD.Count; i++)
                     {
+                        if (string.IsNullOrEmpty(Convert.ToString(dvResultD.Table.Rows[i]["DTaxType"])))
+                            throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceNumber"]) + "發票稅別為空值，停止XML生成作業。");
+
+
                         strXMLD += "<ProductItem>" + Environment.NewLine
                             //+ "<!-- 原發票日期 -->" + Environment.NewLine
                             + "<OriginalInvoiceDate>" + Convert.ToString(dvResultD.Table.Rows[i]["DOriginalInvoiceDate"]) + "</OriginalInvoiceDate>" + Environment.NewLine

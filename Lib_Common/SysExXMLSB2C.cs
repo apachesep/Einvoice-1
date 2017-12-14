@@ -104,6 +104,10 @@ namespace NSysDB
                             + "</ProductItem>" + Environment.NewLine;
                     }
 
+                    if (string.IsNullOrEmpty(Convert.ToString(dvResultM.Table.Rows[0]["ATaxType"])))
+                        throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]) + "發票稅別為空值，停止XML生成作業。");
+
+
                     strXMLA = "</Details>" + Environment.NewLine
                    + "<Amount>" + Environment.NewLine
                    //+ "<!-- 應稅銷售額合計(含稅新台幣)B2B:未稅  B2C:內含稅 -->" + Environment.NewLine
@@ -276,6 +280,10 @@ namespace NSysDB
 
                     for (int i = 0; i < dvResultD.Count; i++)
                     {
+
+                        if (string.IsNullOrEmpty(Convert.ToString(dvResultD.Table.Rows[i]["DTaxType"])))
+                            throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceNumber"]) + "發票稅別為空值，停止XML生成作業。");
+
                         strXMLD += "<ProductItem>" + Environment.NewLine
                             //+ "<!-- 原發票日期 -->" + Environment.NewLine
                             + "<OriginalInvoiceDate>" + Convert.ToString(dvResultD.Table.Rows[i]["DOriginalInvoiceDate"]) + "</OriginalInvoiceDate>" + Environment.NewLine

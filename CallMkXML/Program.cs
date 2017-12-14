@@ -8,8 +8,14 @@ class Program
 {
     static void Main(string[] args)
     {
+        try
+        {
         AllXML AllXML = new AllXML();
         AllXML.Begin();
+        }
+        catch
+        {
+        }
     }
 }
 

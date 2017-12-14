@@ -61,6 +61,10 @@
       <Project>{cc2a8a52-f3b7-4a99-bb82-0431618f5054}</Project>
       <Name>ExSB2C</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PublicMethodFramework35\PublicMethodFramework35.csproj">
+      <Project>{b7088ee9-9383-49c4-8f48-cd04530cddf7}</Project>
+      <Name>PublicMethodFramework35</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

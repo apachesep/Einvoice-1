@@ -79,7 +79,7 @@ namespace APT
 
                 if (!string.IsNullOrEmpty(errorMsg))
                 {
-                    string mailSubject = string.Format("[{0}]", "電子發票管理平台-電子發票找不到檔案.");
+                    string mailSubject = string.Format("[{0}]", "電子發票管理平台-電子發票找不到檔案.", DateTime.UtcNow.AddHours(0).ToString("yyyy\\/MM\\/dd"));
                     string mailBody = string.Format("[電子發票 {0} 找不到檔案.]", errorMsg);
                     string eToWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eToWhoRinnai");
                     string eFromWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eFromWho");
