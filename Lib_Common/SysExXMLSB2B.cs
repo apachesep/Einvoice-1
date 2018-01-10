@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.IO;
-using System.Linq;
+
 namespace NSysDB
 {
     namespace NTSQL
@@ -73,6 +73,7 @@ namespace NSysDB
                           + "</Main>" + Environment.NewLine
                           + "<Details>" + Environment.NewLine;
 
+                    int sumAmount = 0;
                     for (int i = 0; i < dvResultD.Count; i++)
                     {
                         strXMLD += "<ProductItem>" + Environment.NewLine
@@ -87,10 +88,35 @@ namespace NSysDB
                   //+ "<!-- 明細排列序號 -->" + Environment.NewLine
                   + "<SequenceNumber>" + Convert.ToString(dvResultD.Table.Rows[i]["DSequenceNumber"]) + "</SequenceNumber>" + Environment.NewLine
                   + "</ProductItem>" + Environment.NewLine;
+                        if (string.IsNullOrEmpty(Convert.ToString(dvResultD.Table.Rows[i]["DAmount"])))
+                            throw new Exception("明細 單品項金額為空值，停止XML生成作業。");
+                        sumAmount += Convert.ToInt32(dvResultD.Table.Rows[i]["DAmount"]);
                     }
+
+                    #region 判斷金額總計是否相符
+
+                    int totalAmount = (Convert.ToInt32(dvResultM.Table.Rows[0]["ATotalAmount"]));
+                    if ((sumAmount + Convert.ToInt32(dvResultM.Table.Rows[0]["ATaxAmount"])) != totalAmount)
+                        throw new Exception(
+                            string.Format(
+                                @"金額總計與明細不相符，停止XML生成作業<br/> 
+                                {0} {1}：  
+                                
+                                明細金額：{2} <br/> 
+                                稅額：{3} <br/> 
+                                加總金額： {4}",
+                            sKind0up, Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]), sumAmount, Convert.ToInt32(dvResultM.Table.Rows[0]["ATaxAmount"]), totalAmount));
+
+                    #endregion 判斷金額總計是否相符
+
+                    //DAmount 加總 == (TotalAmount+ATaxAmount)
+
+                    #region 判斷發票稅別是否為空值
 
                     if (string.IsNullOrEmpty(Convert.ToString(dvResultM.Table.Rows[0]["ATaxType"])))
                         throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]) + "發票稅別為空值，停止XML生成作業。");
+
+                    #endregion 判斷發票稅別是否為空值
 
                     strXMLA = "</Details>" + Environment.NewLine
     + "<Amount>" + Environment.NewLine
@@ -129,8 +155,6 @@ namespace NSysDB
                     return false;
                 }
             }
-
-
 
             public bool ExXmlA0501(string ASN, string MInvoiceNumber, string sKind0up, string sKind0upAll, string sPgSN)
             {
@@ -264,7 +288,6 @@ namespace NSysDB
                     {
                         if (string.IsNullOrEmpty(Convert.ToString(dvResultD.Table.Rows[i]["DTaxType"])))
                             throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceNumber"]) + "發票稅別為空值，停止XML生成作業。");
-
 
                         strXMLD += "<ProductItem>" + Environment.NewLine
                             //+ "<!-- 原發票日期 -->" + Environment.NewLine

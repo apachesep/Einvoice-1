@@ -44,7 +44,7 @@ class AllXML
         }
         catch (Exception ex)
         {
-            string mailBody = string.Format("[電子發票 發票稅別為空值] <br> 錯誤訊息：{0}", ex.Message);
+            string mailBody = string.Format("[電子發票] <br> 錯誤訊息：{0}", ex.Message);
             string eToWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eToWhoRinnai");
             string eFromWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eFromWho");
             PublicMethodFramework35.Repositoies.AutoEMail(eToWho1, "", eFromWho1, "", mailBody);

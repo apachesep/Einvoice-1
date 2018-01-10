@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Printing;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace APT4
     {
         private string MInvoiceNumberS;
         private string MInvoiceNumberE;
+        private List<string> EinvoiceList { get; set; }
 
         public APT4(string eMInvoiceNumberS, string eMInvoiceNumberE)
         {
@@ -18,30 +20,44 @@ namespace APT4
             MInvoiceNumberS = eMInvoiceNumberS;
             MInvoiceNumberE = eMInvoiceNumberE;
         }
-
+        public APT4(List<string> envoiceList)
+        {
+            InitializeComponent();
+            EinvoiceList = envoiceList;
+        }
         private void butCheck_Click(object sender, EventArgs e)
         {
             if (comPrinter.SelectedItem.ToString() != "請選擇印表機")
             {
-                if (MInvoiceNumberE != "")
+
+                if (EinvoiceList.Count > 0)
                 {
-                    //多筆
-                    for (Int64 i = Convert.ToInt64(MInvoiceNumberS.Substring(6, 4)); i <= Convert.ToInt64(MInvoiceNumberE.Substring(6, 4)); i++)
+                    foreach (var einvoice in EinvoiceList)
                     {
-                        try
-                        {
-                            PrintPDF4(MInvoiceNumberS.Substring(0, 6) + i.ToString(), comPrinter.SelectedItem.ToString());
-                        }
-                        catch
-                        {
-                        }
+                        System.Threading.Thread.Sleep(2000);
+                        PrintPDF4(einvoice, comPrinter.SelectedItem.ToString());
                     }
                 }
-                else
-                {
-                    //單筆
-                    PrintPDF4(MInvoiceNumberS, comPrinter.SelectedItem.ToString());
-                }
+
+                //if (MInvoiceNumberE != "")
+                //{
+                //    //多筆
+                //    for (Int64 i = Convert.ToInt64(MInvoiceNumberS.Substring(6, 4)); i <= Convert.ToInt64(MInvoiceNumberE.Substring(6, 4)); i++)
+                //    {
+                //        try
+                //        {
+                //            PrintPDF4(MInvoiceNumberS.Substring(0, 6) + i.ToString(), comPrinter.SelectedItem.ToString());
+                //        }
+                //        catch
+                //        {
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    //單筆
+                //    PrintPDF4(MInvoiceNumberS, comPrinter.SelectedItem.ToString());
+                //}
 
                 Application.Exit();
             }
@@ -140,6 +156,9 @@ namespace APT4
                     splitArr[0] = Convert.ToChar(",");
                     string prnName = jobName.Split(splitArr)[0];
                     string documentName = prntJob.Properties["Document"].Value.ToString();
+                    PublicMethodFramework35.Repositoies.SaveMesagesToTextFile("列印文件名稱：" + prnName + "   -   " + documentName);
+
+
                     if (String.Compare(prnName, printerName, true) == 0)
                     {
                         if (printFile == documentName.ToString())

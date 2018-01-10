@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Printing;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace APT2
     {
         private string MInvoiceNumberS;
         private string MInvoiceNumberE;
+        private List<string> EinvoiceList { get; set; }
 
         public APT2(string eMInvoiceNumberS, string eMInvoiceNumberE)
         {
@@ -19,10 +21,24 @@ namespace APT2
             MInvoiceNumberE = eMInvoiceNumberE;
         }
 
+        public APT2(List<string> envoiceList)
+        {
+            InitializeComponent();
+            EinvoiceList = envoiceList;
+        }
+
         private void butCheck_Click(object sender, EventArgs e)
         {
             if (comPrinter.SelectedItem.ToString() != "請選擇印表機")
             {
+                //if (EinvoiceList.Count > 0)
+                //{
+                //    foreach (var einvoice in EinvoiceList)
+                //    {
+                //        PrintPDF1(einvoice, comPrinter.SelectedItem.ToString());
+                //    }
+                //}
+
                 if (MInvoiceNumberE != "")
                 {
                     //多筆

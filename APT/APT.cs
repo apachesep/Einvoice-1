@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Printing;
 using System.Linq;
@@ -12,36 +13,52 @@ namespace APT
         private string MInvoiceNumberS;
         private string MInvoiceNumberE;
 
+        private List<string> EinvoiceList { get; set; }
+
         public APT(string eMInvoiceNumberS, string eMInvoiceNumberE)
         {
             InitializeComponent();
             MInvoiceNumberS = eMInvoiceNumberS;
             MInvoiceNumberE = eMInvoiceNumberE;
         }
+        public APT(List<string> envoiceList)
+        {
+            InitializeComponent();
+            EinvoiceList = envoiceList;
+        }
+
+
 
         private void butCheck_Click(object sender, EventArgs e)
         {
             if (comPrinter.SelectedItem.ToString() != "請選擇印表機")
             {
-                if (MInvoiceNumberE != "")
+                if (EinvoiceList.Count > 0)
                 {
-                    //多筆
-                    for (Int64 i = Convert.ToInt64(MInvoiceNumberS.Substring(2, 8)); i <= Convert.ToInt64(MInvoiceNumberE.Substring(2, 8)); i++)
+                    foreach (var einvoice in EinvoiceList)
                     {
-                        try
-                        {
-                            PrintPDF1(MInvoiceNumberS.Substring(0, 2) + i.ToString(), comPrinter.SelectedItem.ToString());
-                        }
-                        catch
-                        {
-                        }
+                        PrintPDF1(einvoice, comPrinter.SelectedItem.ToString());
                     }
                 }
-                else
-                {
-                    //單筆
-                    PrintPDF1(MInvoiceNumberS, comPrinter.SelectedItem.ToString());
-                }
+                //if (MInvoiceNumberE != "")
+                //{
+                //    //多筆
+                //    for (Int64 i = Convert.ToInt64(MInvoiceNumberS.Substring(2, 8)); i <= Convert.ToInt64(MInvoiceNumberE.Substring(2, 8)); i++)
+                //    {
+                //        try
+                //        {
+                //            PrintPDF1(MInvoiceNumberS.Substring(0, 2) + i.ToString(), comPrinter.SelectedItem.ToString());
+                //        }
+                //        catch
+                //        {
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    //單筆
+                //    PrintPDF1(MInvoiceNumberS, comPrinter.SelectedItem.ToString());
+                //}
 
                 Application.Exit();
             }
@@ -72,10 +89,7 @@ namespace APT
                 {
                     PrintPDFGOGO(sPath2, sPrint, sPfile);
                 }
-                else
-                {
-                    errorMsg += sPfile;
-                }
+
 
                 if (!string.IsNullOrEmpty(errorMsg))
                 {

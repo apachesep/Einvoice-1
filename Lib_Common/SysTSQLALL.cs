@@ -707,7 +707,7 @@ namespace NSysDB
                 //pdf 預設寬度 數字越大越寬
                 float defaultDocWidth = 162f;
                 //pdf 預設高度 數字越大越高  不含明細
-                float defaultDocHeight = 302f;
+                float defaultDocHeight = sKind == "3" ? 309f : 302f;
                 //每次增加一行欲增加數值
                 float stepAdd = 7f;
                 //每次增加一行欲增加數值 筆明細需增加的高度
@@ -825,6 +825,8 @@ namespace NSysDB
                 iTextSharp.text.Font ChFont22B = new iTextSharp.text.Font(bfChinese, 22, 1);
 
                 Paragraph ParagraphW1 = new Paragraph();
+                //補印專用
+                Paragraph ParagraphForSkind3 = new Paragraph();
                 ParagraphW1.Leading = 23;
                 ParagraphW1.Alignment = Element.ALIGN_CENTER;
 
@@ -847,13 +849,24 @@ namespace NSysDB
                 {
                     Phrase ParagraphWa021 = new Phrase(sProveName10, ChFont16B);
                     Phrase ParagraphWa022 = new Phrase(sProveName11, ChFont16B);
+                    //無意義的空白 註解
                     //Phrase ParagraphWa023 = new Phrase("               ", ChFont4);
-                    ParagraphW1.Add(ParagraphWa021);
-                    ParagraphW1.Add(ParagraphWa022);
+
+                    //new add by 20180108
+                    ParagraphForSkind3.Add(ParagraphWa021);
+                    ParagraphForSkind3.Add(ParagraphWa022);
+                    //ParagraphW1.Add(ParagraphWa022);
+                    ParagraphForSkind3.Alignment = iTextSharp.text.Image.LEFT_ALIGN;
+                    //右邊QRCODE 若有需要在調整
+                    //defaultRightQRCodeTopPosition += 7f;
+                    //無意義的空白 註解
                     //ParagraphW1.Add(ParagraphWa023);
+                    //與標題兼間距
+                    ParagraphForSkind3.Leading = 23;
                 }
 
                 doc.Add(ParagraphW1);
+                doc.Add(ParagraphForSkind3);
 
                 doc.Add(new Paragraph(3f, "\n", ChFont9B));
 

@@ -13,30 +13,62 @@ namespace APT4
         [STAThread]
         static void Main(string[] args)
         {
-            string MInvoiceNumberS = "";
-            string MInvoiceNumberE = "";
 
-            if (args.Length == 1)
+            #region 列印發票
+            try
             {
-                MInvoiceNumberS = args[0].ToString();
-                if (MInvoiceNumberS.Length == 10)
+                if (args != null && args.Length != 0)
                 {
+                    var printData = PublicMethodFramework35.Repositoies.GetPrintEinvoiceNumbersByPrintNo(args[0]);
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
-                    Application.Run(new APT4(MInvoiceNumberS, MInvoiceNumberE));
+                    Application.Run(new APT4(printData));
+                    PublicMethodFramework35.Repositoies.ClearPrintEinvocieDataByPrintNo(args[0]);
+                }
+                else if (args.Length > 1)
+                {
+                    string mailBody = string.Format("[電子發票] <br> 錯誤訊息：{0}", "列印傳入資訊錯誤ID大於1筆");
+                    string eToWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eToWhoRinnai");
+                    string eFromWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eFromWho");
+                    PublicMethodFramework35.Repositoies.AutoEMail(eToWho1, "", eFromWho1, "", mailBody);
                 }
             }
-            if (args.Length == 2)
+            catch (Exception ex)
             {
-                MInvoiceNumberS = args[0].ToString();
-                MInvoiceNumberE = args[1].ToString();
-                if (MInvoiceNumberS.Length == 10 && MInvoiceNumberS.Length == 10)
-                {
-                    Application.EnableVisualStyles();
-                    Application.SetCompatibleTextRenderingDefault(false);
-                    Application.Run(new APT4(MInvoiceNumberS, MInvoiceNumberE));
-                }
+                string mailBody = string.Format("[電子發票] <br> 錯誤訊息：{0}", "列印發票出現未知錯誤：{1}", args[0], ex.Message);
+                string eToWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eToWhoRinnai");
+                string eFromWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eFromWho");
+                PublicMethodFramework35.Repositoies.AutoEMail(eToWho1, "", eFromWho1, "", mailBody);
+                throw ex;
             }
         }
+
+        #endregion 列印發票
+
+        //string MInvoiceNumberS = "";
+        //string MInvoiceNumberE = "";
+
+        //if (args.Length == 1)
+        //{
+        //    MInvoiceNumberS = args[0].ToString();
+        //    if (MInvoiceNumberS.Length == 10)
+        //    {
+        //        Application.EnableVisualStyles();
+        //        Application.SetCompatibleTextRenderingDefault(false);
+        //        Application.Run(new APT4(MInvoiceNumberS, MInvoiceNumberE));
+        //    }
+        //}
+        //if (args.Length == 2)
+        //{
+        //    MInvoiceNumberS = args[0].ToString();
+        //    MInvoiceNumberE = args[1].ToString();
+        //    if (MInvoiceNumberS.Length == 10 && MInvoiceNumberS.Length == 10)
+        //    {
+        //        Application.EnableVisualStyles();
+        //        Application.SetCompatibleTextRenderingDefault(false);
+        //        Application.Run(new APT4(MInvoiceNumberS, MInvoiceNumberE));
+        //    }
+        //}
     }
 }
+

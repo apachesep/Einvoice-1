@@ -33,7 +33,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Release\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -78,6 +78,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EinvoiceUnity\EinvoiceUnity.csproj">
+      <Project>{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}</Project>
+      <Name>EinvoiceUnity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ImSB2B\ImSB2B.csproj">
       <Project>{a05dd7db-3941-402a-af57-7337f8418ee4}</Project>
       <Name>ImSB2B</Name>

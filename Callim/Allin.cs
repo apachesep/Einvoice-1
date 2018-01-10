@@ -1,8 +1,77 @@
-﻿using System;
+﻿using EinvoiceUnity.Models;
+using NSysDB.NTSQL;
+using System;
 using System.Data;
+using System.Text;
+using System.Linq;
+using NSysDB;
 
 public class Allin
 {
+
+    /// <summary>
+    /// 處理錯誤通知mail
+    /// </summary>
+    /// <param name="errorInfo"></param>
+    private void SendErrorEmail(ErrorInfoModel errorInfo)
+    {
+        SQL1 sqlAdaper = new SQL1();
+        StringBuilder htmlContent = new StringBuilder();
+
+        string propertiesHtml = string.Empty;
+        var groupData = errorInfo.ErrorBuffer.OrderBy(o => o.Key)
+            .GroupBy(o => o.Key, o => o.Value).ToList();
+
+        //分出A0401H，C0401H
+        foreach (var group in groupData)
+        {
+            var dataTotalCount = group.Sum(s => s.Details.Count);
+            string einvoiceType = group.Key;
+            htmlContent.AppendLine(@"<div style=""border:solid black 1px;padding:7px;"">");
+            htmlContent.AppendLine(@"<p style=""font-size:23px;"">");
+            htmlContent.AppendLine("發票處理程序：" + einvoiceType + " 資料筆數：" + dataTotalCount);
+            htmlContent.AppendLine("<p>");
+
+            var errorsGroup = group.First().Details.GroupBy(g => g.ErrorGroupKey).Select(s => s);
+            //分出錯誤群組
+            foreach (var error in errorsGroup)
+            {
+                var erKey = error.Key;
+                htmlContent.AppendLine("<p>");
+                htmlContent.AppendLine("錯誤分類：" + erKey);
+                htmlContent.AppendLine("<p>");
+                int dataIndex = 1;
+                foreach (var er in error)
+                {
+                    htmlContent.AppendLine(@"<div style=""border:solid #ccc 1px;padding:3px;"">");
+                    htmlContent.AppendLine("<p>");
+                    htmlContent.AppendLine("項目：" + dataIndex);
+                    htmlContent.AppendLine("<p>");
+
+                    htmlContent.AppendLine("<p>");
+                    htmlContent.AppendLine("錯誤發票：" + er.EinvoiceNumber);
+                    htmlContent.AppendLine("<p>");
+
+                    htmlContent.AppendLine("<p>");
+                    htmlContent.AppendLine("錯誤訊息：" + er.ErrorMessage);
+                    htmlContent.AppendLine("<p>");
+
+                    htmlContent.AppendLine("<p>");
+                    htmlContent.AppendLine("其他訊息：" + er.OtherMessage);
+                    htmlContent.AppendLine("<p>");
+                    htmlContent.AppendLine("</div>");
+
+                    dataIndex++;
+                }
+            }
+            htmlContent.AppendLine("</div>");
+        }
+        var viewHtml = htmlContent.ToString();
+        XMLClass oXMLeParamts = new XMLClass();
+        string eToWho1 = oXMLeParamts.GetParaXml("eToWho");
+        string eFromWho1 = oXMLeParamts.GetParaXml("eFromWho");
+        sqlAdaper.AutoEMail(eToWho1, "", eFromWho1, "", htmlContent.ToString());
+    }
     public void Begin()
     {
         string sPgSN = DateTime.Now.ToString("yyyyMMddHHmmssfff");

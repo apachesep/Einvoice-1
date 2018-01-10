@@ -2,14 +2,15 @@
 using PublicMethodFramework35.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
 using System.Net.Mail;
-using System.Text;
 using System.Xml;
+using System.Linq;
+using System.IO;
 
 namespace PublicMethodFramework35
 {
-
     public static class Repositoies
     {
         public static WorkProcessType WorkType
@@ -31,11 +32,9 @@ namespace PublicMethodFramework35
             try
             {
                 RGetXMLNode = xmlDoc.SelectSingleNode("/Params/" + XMLNode).InnerText.ToString();
-
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
 
@@ -113,14 +112,19 @@ namespace PublicMethodFramework35
                 //SmtpServer = new SmtpClient("MS1.cgs.com.tw", 587);
 
                 #region 正式區mail server
+
                 //SmtpServer = new SmtpClient("10.10.1.48", 587);
                 //SmtpServer.Credentials = new System.Net.NetworkCredential(@"cgs\einvoice", "cgs23534251");
-                #endregion
+
+                #endregion 正式區mail server
 
                 #region 正式區mail server
+
                 SmtpServer = new SmtpClient("lisomail.rinnai.com.tw", 25);
                 SmtpServer.Credentials = new System.Net.NetworkCredential(@"einvsrv", "15963");
-                #endregion
+
+                #endregion 正式區mail server
+
                 if (WorkType == WorkProcessType.Release)
                 {
                     SmtpServer.Send(mail);
@@ -128,6 +132,135 @@ namespace PublicMethodFramework35
                 strResult = "執行成功!!";
             }
             return strResult;
+        }
+
+        public static List<string> GetPrintEinvoiceNumbersByPrintNo(string printNo)
+        {
+            List<string> invoiceList = new List<string>();
+            Repositoies.SaveMesagesToTextFile("取號開始：" + printNo);
+            var data = PrintEinvoiceSqlHandler(printNo);
+            Repositoies.SaveMesagesToTextFile("取號結束：" + printNo);
+
+            return data;
+        }
+
+        //delete [Rinnai$VAT Print Number] where  [Print No] = '3923852'
+        public static void ClearPrintEinvocieDataByPrintNo(string printNo)
+        {
+            try
+            {
+                string connectionString = @"Data Source=192.168.1.4;Initial Catalog=NavisionNew;User ID=sa;Password=sasasasa";
+                string queryString =
+                @" delete[Rinnai$VAT Print Number] where[Print No] = @printNo ";
+
+                List<SqlParameter> sqlParameters = new List<SqlParameter>();
+                sqlParameters.Add(new SqlParameter() { ParameterName = "@printNo", Value = printNo });
+
+                using (SqlConnection connection =
+                    new SqlConnection(connectionString))
+                {
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        connection.Open();
+                        cmd.CommandText = queryString;
+                        cmd.Parameters.AddRange(sqlParameters.ToArray());
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public static List<string> PrintEinvoiceSqlHandler(string printNo)
+        {
+            List<string> result = new List<string>();
+            try
+            {
+                string connectionString = @"Data Source=192.168.1.4;Initial Catalog=NavisionNew;User ID=sa;Password=sasasasa";
+                string queryString =
+                @"  select * from [Rinnai$VAT Print Number] where [Print No] =@printNo  order by [VAT No] ";
+
+                List<SqlParameter> sqlParameters = new List<SqlParameter>();
+                sqlParameters.Add(new SqlParameter() { ParameterName = "@printNo", Value = printNo });
+                Repositoies.SaveMesagesToTextFile("取號資料庫連線開始：" + printNo);
+
+                using (SqlConnection connection =
+                    new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand(queryString, connection);
+                    command.Parameters.AddRange(sqlParameters.ToArray());
+
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    DataTable dt = new DataTable();
+                    dt.Load(reader);
+                    if (dt.Rows.Count == 0)
+                    {
+                        Repositoies.SaveMesagesToTextFile("取得筆數0筆：");
+                        throw new Exception(string.Format("列印序號：{0} 查無發票號碼!", printNo));
+                    }
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        result.Add(dt.Rows[i]["VAT No"].ToString());
+                    }
+                }
+                Repositoies.SaveMesagesToTextFile("取號資料庫連線結束：" + printNo);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            result = result.Distinct().ToList();
+            return result;
+        }
+
+        /// <summary>
+        /// 儲存錯誤訊息Log檔(不覆寫)
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="fileName"></param>
+        /// <param name="content"></param>
+        public static void SaveMesagesToTextFile(string content)
+        {
+            string path = @"D:\EinvoiceLog\";
+            string fileName = "print_log.txt";
+            Exception error = null;
+            try
+            {
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                if (!File.Exists(path + fileName))
+                {
+                    using (StreamWriter sw = File.CreateText(path + fileName))
+                    {
+                        sw.WriteLine(DateTime.Now);
+                        sw.WriteLine(content);
+                        sw.WriteLine("-------------------------------------");
+                        sw.WriteLine("");
+                    }
+                }
+                else
+                {
+                    using (StreamWriter sw = File.AppendText(path + fileName))
+                    {
+                        sw.WriteLine(DateTime.Now);
+                        sw.WriteLine(content);
+                        sw.WriteLine("-------------------------------------");
+                        sw.WriteLine("");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                error = ex;
+            }
         }
     }
 }

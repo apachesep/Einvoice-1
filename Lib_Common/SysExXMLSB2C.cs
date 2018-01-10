@@ -87,7 +87,7 @@ namespace NSysDB
                           + "<RandomNumber>" + Convert.ToString(dvResultM.Table.Rows[0]["MRandomNumber"]) + "</RandomNumber>" + Environment.NewLine
                           + "</Main>" + Environment.NewLine
                           + "<Details>" + Environment.NewLine;
-
+                    int sumAmount = 0;
                     for (int i = 0; i < dvResultD.Count; i++)
                     {
                         strXMLD += "<ProductItem>" + Environment.NewLine
@@ -102,7 +102,25 @@ namespace NSysDB
                             //+ "<!-- 明細排列序號 -->" + Environment.NewLine
                             + "<SequenceNumber>" + Convert.ToString(dvResultD.Table.Rows[i]["DSequenceNumber"]) + "</SequenceNumber>" + Environment.NewLine
                             + "</ProductItem>" + Environment.NewLine;
+                        sumAmount += Convert.ToInt32(dvResultD.Table.Rows[i]["DAmount"]);
                     }
+
+                    #region 判斷金額總計是否相符
+
+                    int totalAmount = (Convert.ToInt32(dvResultM.Table.Rows[0]["ATotalAmount"]));
+                    if ((sumAmount + Convert.ToInt32(dvResultM.Table.Rows[0]["ATaxAmount"])) != totalAmount)
+                        throw new Exception(
+                            string.Format(
+                                @"金額總計與明細不相符，停止XML生成作業<br/> 
+                                {0} {1}：  
+                                
+                                明細金額：{2} <br/> 
+                                稅額：{3} <br/> 
+                                加總金額： {4}",
+                            sKind0up, Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]), sumAmount, Convert.ToInt32(dvResultM.Table.Rows[0]["ATaxAmount"]), totalAmount));
+
+                    #endregion 判斷金額總計是否相符
+
 
                     if (string.IsNullOrEmpty(Convert.ToString(dvResultM.Table.Rows[0]["ATaxType"])))
                         throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]) + "發票稅別為空值，停止XML生成作業。");

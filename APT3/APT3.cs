@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Printing;
 using System.Linq;
@@ -10,17 +11,30 @@ namespace APT3
     public partial class APT3 : Form
     {
         private string MInvoiceNumberS;
+        private List<string> EinvoiceList { get; set; }
 
         public APT3(string eMInvoiceNumberS)
         {
             InitializeComponent();
             MInvoiceNumberS = eMInvoiceNumberS;
         }
-
+        public APT3(List<string> envoiceList)
+        {
+            InitializeComponent();
+            EinvoiceList = envoiceList;
+        }
         private void butCheck_Click(object sender, EventArgs e)
         {
             if (comPrinter.SelectedItem.ToString() != "請選擇印表機")
             {
+                //if (EinvoiceList.Count > 0)
+                //{
+                //    foreach (var einvoice in EinvoiceList)
+                //    {
+                //        PrintPDF3(einvoice, comPrinter.SelectedItem.ToString());
+                //    }
+                //}
+
                 PrintPDF3(MInvoiceNumberS, comPrinter.SelectedItem.ToString());
                 Application.Exit();
             }

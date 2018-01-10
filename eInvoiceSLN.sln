@@ -63,6 +63,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DailyR", "DailyR\DailyR.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicMethodFramework35", "PublicMethodFramework35\PublicMethodFramework35.csproj", "{B7088EE9-9383-49C4-8F48-CD04530CDDF7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EinvoiceUnity", "EinvoiceUnity\EinvoiceUnity.csproj", "{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +151,10 @@ Global
 		{B7088EE9-9383-49C4-8F48-CD04530CDDF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7088EE9-9383-49C4-8F48-CD04530CDDF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7088EE9-9383-49C4-8F48-CD04530CDDF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
