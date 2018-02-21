@@ -21,6 +21,7 @@ namespace PublicMethodFramework35
             }
         }
 
+
         public static string GetParaXml(string XMLNode)
         {
             string sSystemINI = "D:\\eInvoiceSLN\\Release\\Xml\\eParamts.xml";

@@ -11,7 +11,7 @@ public class Program
         if (args.Length == 3)
         {
             MoveFiles GoMoveFiles = new MoveFiles();
-            GoMoveFiles.Begin(args[0].ToString(),args[1].ToString(), args[2].ToString());
+            GoMoveFiles.Begin(args[0].ToString(), args[1].ToString(), args[2].ToString());
         }
     }
 }

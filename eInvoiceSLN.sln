@@ -65,6 +65,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicMethodFramework35", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EinvoiceUnity", "EinvoiceUnity\EinvoiceUnity.csproj", "{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckPDF", "CheckPDF\CheckPDF.csproj", "{D779055C-5E83-41F0-9986-670AC2D02480}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -155,6 +157,10 @@ Global
 		{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D779055C-5E83-41F0-9986-670AC2D02480}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D779055C-5E83-41F0-9986-670AC2D02480}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D779055C-5E83-41F0-9986-670AC2D02480}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D779055C-5E83-41F0-9986-670AC2D02480}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

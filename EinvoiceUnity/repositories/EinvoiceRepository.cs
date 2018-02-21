@@ -15,8 +15,10 @@ namespace EinvoiceUnity.repositories
             int errorGroupKey,
             short errorLevel,
             ref ErrorInfoModel errorInfo,
+            string processName,
             string sourceFile = null,
-            string otherMsg = null)
+            string otherMsg = null
+            )
         {
             if (!errorInfo.ErrorBuffer.ContainsKey(sKind))
                 errorInfo.ErrorBuffer.Add(sKind, new EinvoiceErrorMain());
@@ -27,7 +29,8 @@ namespace EinvoiceUnity.repositories
                 ErrorMessage = errorMsg,
                 ErrorLevel = errorLevel,
                 SourceFile = sourceFile,
-                OtherMessage = otherMsg
+                OtherMessage = otherMsg,
+                ProcessName = processName
             });
         }
         public static bool CheckHeadHasError(string sKind0, string einvoiceNum, ErrorInfoModel errorInfo)

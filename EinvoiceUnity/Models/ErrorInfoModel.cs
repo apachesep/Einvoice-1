@@ -25,5 +25,6 @@ namespace EinvoiceUnity.Models
         public short ErrorLevel { get; set; }
         public string SourceFile { get; set; }
         public string OtherMessage { get; set; }
+        public string ProcessName { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Globalization;
 using System.IO;
 
 namespace NSysDB
@@ -10,6 +11,19 @@ namespace NSysDB
         /// </summary>
         public partial class SQL1
         {
+            public bool ValidIsDate(string date)
+            {
+                DateTime dateTime;
+                bool isDate = DateTime.TryParseExact(date, "yyyyMMdd",
+                                            CultureInfo.InvariantCulture,
+                                            DateTimeStyles.None,
+                                            out dateTime);
+                DateTime today = DateTime.UtcNow.AddHours(8);
+                double totalSeconds = new TimeSpan(dateTime.Ticks - today.Ticks).TotalSeconds;
+                bool valid = totalSeconds <= 0;
+                return valid;
+            }
+
             //存證B2B-----S
             public bool ExXmlA0401(string A0401SN, string MInvoiceNumber, string sKind0up, string sKind0upAll, string sPgSN)
             {
@@ -22,7 +36,12 @@ namespace NSysDB
                     string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                     DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "A0401SN='" + A0401SN + "'", "", "");
-
+                    bool validDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceDate"]));
+                    if (!validDate)
+                    {
+                        GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceDate"]), MInvoiceNumber, 23);
+                        return false;
+                    }
                     string strXMLAll = "", strXMLM = "", strXMLD = "", strXMLA = "";
                     strXMLM = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine
                           //+ "<Invoice xmlns=\"urn:GEINV:eInvoiceMessage:C0401:3.1\"/>" + Environment.NewLine
@@ -162,6 +181,18 @@ namespace NSysDB
                 string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                 DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "A0501SN='" + ASN + "'", "", "");
+                bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]));
+                if (!validInvoiceDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "原發票日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
+                bool validInvoiceCancelDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["CancelDate"]));
+                if (!validInvoiceCancelDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "作廢發票日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["CancelDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
 
                 if (dvResultM != null)
                 {
@@ -206,7 +237,12 @@ namespace NSysDB
                 string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                 DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "A0601SN='" + ASN + "'", "", "");
-
+                bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]));
+                if (!validInvoiceDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "原發票日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
                 if (dvResultM != null)
                 {
                     string strXMLAll = "";
@@ -253,7 +289,12 @@ namespace NSysDB
                     string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                     DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "B0401SN='" + B0401SN + "'", "", "");
-
+                    bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceDate"]));
+                    if (!validInvoiceDate)
+                    {
+                        GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "折讓證明單日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceDate"]), MInvoiceNumber, 23);
+                        return false;
+                    }
                     string strXMLAll = "", strXMLM = "", strXMLD = "", strXMLA = "";
                     strXMLM = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine
                           //+ "<Invoice xmlns=\"urn:GEINV:eInvoiceMessage:C0401:3.1\"/>" + Environment.NewLine
@@ -341,7 +382,19 @@ namespace NSysDB
                 string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                 DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "B0501SN='" + ASN + "'", "", "");
+                bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["AllowanceDate"]));
+                if (!validInvoiceDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "原折讓證明單日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["AllowanceDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
 
+                bool validInvoiceCancelDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["CancelDate"]));
+                if (!validInvoiceCancelDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "作廢折讓證明單日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["AllowanceDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
                 if (dvResultM != null)
                 {
                     string strXMLAll = "";

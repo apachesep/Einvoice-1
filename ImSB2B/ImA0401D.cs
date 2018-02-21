@@ -1,14 +1,20 @@
-﻿using System;
+﻿using EinvoiceUnity.Models;
+using EinvoiceUnity.repositories;
+using NSysDB.NTSQL;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
+using System.Linq;
 
 public class ImA0401D
 {
+    private string m_ProcessName = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+    public string ProcessName { get { return m_ProcessName; } set { m_ProcessName = value; } }
+
     public void Begin(string sKind0)
     {
         string[] sArr;
-        using (NSysDB.NTSQL.SQL1 query = new NSysDB.NTSQL.SQL1())
+        using (SQL1 query = new SQL1())
         { query.ReturnArr(out sArr); }
         string sFPathN = sArr[0];
         string sFPathP = sArr[1];
@@ -59,7 +65,7 @@ public class ImA0401D
                                 //    Console.WriteLine("Index : {0}, 字串 : {1}", (i + 1), charA[i]);
                                 //}
 
-                                using (NSysDB.NTSQL.SQL1 query = new NSysDB.NTSQL.SQL1())
+                                using (SQL1 query = new SQL1())
                                 {
                                     try
                                     {
@@ -92,13 +98,11 @@ public class ImA0401D
                                     catch (Exception ex)
                                     {
                                         query.GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, OkFName, ex.ToString(), (counter + 1).ToString(), 11);
-                                       
+
                                         query.GoToSTemp("A0401D", " MInvoiceNumber='" + charA[0].ToString() + "' ");
                                         query.GoToSTemp("A0401H", " MInvoiceNumber='" + charA[0].ToString() + "' ");
                                     }
                                 }
-
-
                             }
                             else
                             {
@@ -169,8 +173,165 @@ public class ImA0401D
 
     }
 
+    /// <summary>
+    /// 將錯誤資料記錄於STEMP資料表 事後一併連同head刪除
+    /// </summary>
+    /// <param name="sPgSN"></param>
+    /// <param name="errorInfo"></param>
+    private void ValidDetailsHasError(ErrorInfoModel errorInfo)
+    {
 
+        var detailsError = errorInfo.ErrorBuffer.Where(o => o.Key == "A0401D").ToList();
+        if (detailsError.Count > 0)
+        {
+            using (var sqlAdapter = new SQL1())
+            {
+                foreach (var error in detailsError)
+                {
+                    var detail = error.Value.Details.First();
 
+                    string index = (error.Value.Details.IndexOf(detail) + 1).ToString();
+                    sqlAdapter.GoLogsAll(error.Key, ProcessName, detail.SourceFile, detail.ErrorMessage, index, detail.ErrorLevel, false);
+                    if (detail.ErrorGroupKey == 1 || detail.ErrorGroupKey == 3)
+                        continue;
+                    sqlAdapter.GoToSTemp("A0401D", " MInvoiceNumber='" + detail.EinvoiceNumber + "' ");
+                    sqlAdapter.GoToSTemp("A0401H", " MInvoiceNumber='" + detail.EinvoiceNumber + "' ");
+                }
+            }
+
+        }
+    }
+
+    public void Begin2(string path, string sKind0, ErrorInfoModel errorInfo, string identityKey)
+    {
+        if (!string.IsNullOrEmpty(sKind0))
+            sKind0 = sKind0.ToUpper();
+        string[] sArr;
+        using (SQL1 sqlAdapter = new SQL1())
+        { sqlAdapter.ReturnArr(out sArr); }
+
+        string sPaPartition = sArr[3];
+        using (SQL1 sqlAdapter = new SQL1())
+        {
+            List<EinvoiceA0401DTemp> tempData = new List<EinvoiceA0401DTemp>();
+            var query = sqlAdapter.Kind1SelectTbl2("*", "FILE_TEMP", " EINVOICE_TP='A0401D' and IDENT_KEY = '" + identityKey + "'", "", "");
+            if (query != null)
+            {
+                var rows = query.Table.Rows;
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    tempData.Add(new EinvoiceA0401DTemp()
+                    {
+                        EinvoiceContent = rows[i]["FILE_CONTENT"].ToString(),
+                        EinvoiceFIlePath = rows[i]["FILE_NM"].ToString(),
+                    });
+                }
+            }
+            else
+                return;
+            string sPgSN = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+
+            sqlAdapter.GoLogsAll(sPgSN, ProcessName, "FILE_TEMP", "", "", 1);
+            //抓 A0401D*.* 的所有檔案
+            foreach (var data in tempData)
+            {
+                int index = tempData.IndexOf(data) + 1;
+                string sourceFile = data.EinvoiceFIlePath;
+                string einvoiceNumber = string.Empty;
+                string einvoiceDescription = string.Empty;
+                string errorMsg = string.Empty;
+
+                try
+                {
+                    string line = "";
+                    List<Hashtable> einvoiceDataList = new List<Hashtable>();
+
+                    line = data.EinvoiceContent;
+                    if (line.Trim() != "")
+                    {
+                        string[] CutS = { sPaPartition };
+                        string[] charA = line.Split(CutS, StringSplitOptions.None);
+                        einvoiceNumber = charA[0];
+                        einvoiceDescription = charA[1];
+                        //字串尾要分號//共10個分號
+                        if (charA.Length == 10)
+                        {
+                            #region 檢查Head有無寫入資料 有的話不寫入明細
+
+                            var chkHeadHasError = EinvoiceRepository.CheckHeadHasError(sKind0, einvoiceNumber, errorInfo);
+
+                            if (chkHeadHasError)
+                            {
+                                errorMsg = "[正式][" + sKind0 + "]" + einvoiceNumber + "[發票Head寫入時有錯，明細資料不寫入]";
+                                EinvoiceRepository.AddEinvoiceToErrorBuffer(sKind0, einvoiceNumber, errorMsg, 1, 51, ref errorInfo, ProcessName, sourceFile, einvoiceDescription);
+                                continue;
+                            }
+
+                            #endregion 檢查Head有無寫入資料 有的話不寫入明細
+
+                            if (sqlAdapter.Kind1SelectTbl3("A0401DSN", "MInvoiceNumber='" + charA[0].ToString() + "' And DSequenceNumber='" + charA[6].ToString() + "'", "A0401D") == 0)
+                            {
+                                Console.WriteLine(string.Format("{0} 寫入正式資料庫 第{1}筆 發票號碼:{2}開始.", sKind0, index, einvoiceNumber));
+
+                                Hashtable hashTable = new Hashtable();
+                                hashTable["MInvoiceNumber"] = charA[0].ToString().Trim();
+                                hashTable["DDescription"] = charA[1].ToString().Trim();
+                                hashTable["DQuantity"] = charA[2].ToString().Trim();
+                                hashTable["DUnit"] = charA[3].ToString().Trim();
+                                hashTable["DUnitPrice"] = charA[4].ToString().Trim();
+                                hashTable["DAmount"] = charA[5].ToString().Trim();
+                                hashTable["DSequenceNumber"] = charA[6].ToString().Trim();
+                                hashTable["DRemark"] = charA[7].ToString().Trim();
+                                hashTable["DRelateNumber"] = charA[8].ToString().Trim();
+
+                                hashTable["TxFileNmae"] = sourceFile;
+                                string insertMsg = sqlAdapter.InsertDataNonKey("A0401D", hashTable);
+
+                                #region 寫入有錯誤之處理
+
+                                if (!string.IsNullOrEmpty(insertMsg))
+                                {
+                                    errorMsg = "[正式][" + sKind0 + "]" + einvoiceNumber + "[TXT寫入正式資料庫發生錯誤，資料不寫入]" + insertMsg;
+                                    EinvoiceRepository.AddEinvoiceToErrorBuffer(sKind0, einvoiceNumber, errorMsg, 2, 51, ref errorInfo, ProcessName, sourceFile, einvoiceDescription);
+                                }
+                                else
+                                    Console.WriteLine(string.Format("{0} 寫入正式資料庫 第{1}筆 發票號碼:{2}完成.", sKind0, index, einvoiceNumber));
+
+                                #endregion 寫入有錯誤之處理
+                            }
+                            else
+                            {
+                                errorMsg = "[MInvoiceNumber:" + charA[0].ToString().Trim() + "][明細排列序號:" + charA[6].ToString().Trim() + "]";
+                                EinvoiceRepository.AddEinvoiceToErrorBuffer(sKind0, einvoiceNumber, errorMsg + "[匯入商品細項的文字檔發生錯誤/此商品已存在!!]", 3, 16, ref errorInfo, ProcessName, sourceFile, einvoiceDescription);
+                            }
+                        }
+                        else
+                        {
+                            errorMsg = "[正式][發票號碼:" + einvoiceNumber + "][字串尾要分號，共10個分號]";
+                            EinvoiceRepository.AddEinvoiceToErrorBuffer(sKind0, einvoiceNumber, errorMsg, 4, 12, ref errorInfo, ProcessName, sourceFile, einvoiceDescription);
+                        }
+                    }
+                    else
+                    {
+                        errorMsg = "[正式][發票號碼:" + einvoiceNumber + "][讀取資料內容為空白]";
+                        EinvoiceRepository.AddEinvoiceToErrorBuffer(sKind0, einvoiceNumber, errorMsg, 4, 12, ref errorInfo, ProcessName, sourceFile, einvoiceDescription);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errorMsg = "[正式][未知錯誤]";
+                    EinvoiceRepository.AddEinvoiceToErrorBuffer(sKind0, einvoiceNumber, errorMsg, 5, 15, ref errorInfo, ProcessName, sourceFile, einvoiceDescription);
+                }
+            }
+            sqlAdapter.GoLogsAll(sPgSN, ProcessName, "FILE_TEMP", "", "", 2);
+            ValidDetailsHasError(errorInfo);
+        }
+    }
 
 }
 
+internal class EinvoiceA0401DTemp
+{
+    public string EinvoiceContent { get; set; }
+    public string EinvoiceFIlePath { get; set; }
+}

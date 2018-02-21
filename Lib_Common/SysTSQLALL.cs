@@ -1,6 +1,7 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -22,6 +23,7 @@ namespace NSysDB
         /// </summary>
         public partial class SQL1
         {
+
             public void ReturnArr(out string[] arr)
             {
                 arr = new string[4];
@@ -59,12 +61,14 @@ namespace NSysDB
                 MDir.Create();
             }
 
-            public void GoLogsAll(string sProgramKey, string sProgramName, string sProgramMotion, string sEX, string sCount, Int16 sKind)
+            public void GoLogsAll(string sProgramKey, string sProgramName, string sProgramMotion, string sEX, string sCount, Int16 sKind, bool sendMail = true)
             {
-                System.Collections.Hashtable data = new System.Collections.Hashtable();
+                Hashtable data = new Hashtable();
                 data["ProgramKey"] = sProgramKey.ToString();
                 data["ProgramName"] = sProgramName.ToString();
                 string sMsn1 = "[注意:]";
+
+                //不發送mail 1,2,99
                 switch (sKind)
                 {
                     case 1:
@@ -78,37 +82,37 @@ namespace NSysDB
                         break;
 
                     case 11:
-                        data["ProgramMotion"] = sMsn1 + "[文字檔字串有誤]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]" + " [" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + "[文字檔字串有誤]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]";
                         data["ProgramState"] = "1";
                         break;
 
                     case 12:
-                        data["ProgramMotion"] = sMsn1 + "[文字檔間隔數不正確]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]" + " [" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + "[文字檔間隔數不正確]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]";
                         data["ProgramState"] = "1";
                         break;
 
                     case 13:
-                        data["ProgramMotion"] = sMsn1 + "[移動文字檔發生錯誤]" + sProgramMotion.ToString() + " [" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + "[移動文字檔發生錯誤]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
                     case 14:
-                        data["ProgramMotion"] = sMsn1 + " [讀取文字檔發生錯誤]" + sProgramMotion.ToString() + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [讀取文字檔發生錯誤]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
                     case 15:
-                        data["ProgramMotion"] = sMsn1 + " [移動文字檔發生錯誤]" + sProgramMotion.ToString() + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [移動文字檔發生錯誤]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
                     case 16:
-                        data["ProgramMotion"] = sMsn1 + "[匯入商品細項的文字檔發生錯誤/此商品已存在!!]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]" + " [" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + "[匯入商品細項的文字檔發生錯誤/此商品已存在!!]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]";
                         data["ProgramState"] = "1";
                         break;
 
                     case 17:
-                        data["ProgramMotion"] = sMsn1 + "[必要欄位沒值!!][DOriginalInvoiceDate][DOriginalInvoiceNumber]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]" + " [" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + "[必要欄位沒值!!][DOriginalInvoiceDate][DOriginalInvoiceNumber]" + sProgramMotion.ToString() + " [第" + sCount + "筆資料]";
                         data["ProgramState"] = "1";
                         break;
 
@@ -118,27 +122,27 @@ namespace NSysDB
                         break;
 
                     case 31:
-                        data["ProgramMotion"] = sMsn1 + " [列印發票發生錯誤]" + sProgramMotion.ToString() + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [列印發票發生錯誤]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
                     case 32:
-                        data["ProgramMotion"] = sMsn1 + " [WebService發生錯誤]" + sProgramMotion.ToString() + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [WebService發生錯誤]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
                     case 41:
-                        data["ProgramMotion"] = sMsn1 + " [生成發票PDF 發生錯誤]" + sProgramMotion.ToString() + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [生成發票PDF 發生錯誤]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
                     case 51:
-                        data["ProgramMotion"] = sMsn1 + " [請盡速檢查文字檔內容!]" + sProgramMotion.ToString() + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [請盡速檢查文字檔內容!]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
                     case 61:
-                        data["ProgramMotion"] = sMsn1 + " [Callim內Allin的程序被中斷!]" + sProgramMotion.ToString() + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [Callim內Allin的程序被中斷!]" + sProgramMotion.ToString();
                         data["ProgramState"] = "1";
                         break;
 
@@ -148,33 +152,75 @@ namespace NSysDB
                         break;
 
                     default:
-                        data["ProgramMotion"] = sMsn1 + " [函式引數錯誤]" + "[" + sEX + "]";
+                        data["ProgramMotion"] = sMsn1 + " [函式引數錯誤]";
                         data["ProgramState"] = "1";
                         break;
                 }
 
+                #region 訊息置換
+
+                data["ProgramMotion"] += sEX;
                 InsertDataNonKey("LogsAll", data);
+                if (!string.IsNullOrEmpty(sEX))
+                    data["ProgramMotion"] = data["ProgramMotion"].ToString().Replace(sEX, "");
+                data["SystemExceptionMsg"] = sEX;
+
+                #endregion 訊息置換
+
+                #region 判斷是否送mail
+
+                short[] notSendMailAry = new short[] { 1, 2, 99 };
+                if (!notSendMailAry.Contains(sKind))
+                {
+                    if (!sendMail)
+                        data["ProgramState"] = "0";
+                }
+
+                #endregion 判斷是否送mail
 
                 if (data["ProgramState"].ToString() != "0")
                 {
                     try
                     {
-                        NSysDB.XMLClass oXMLeParamts = new NSysDB.XMLClass();
+                        StringBuilder htmlContent = new StringBuilder();
+                        //var properties = data.GetType().GetProperties();
+                        htmlContent.AppendLine(@"<div style=""border:solid black 1px;padding:7px;"">");
+                        htmlContent.AppendLine(@"<p style=""font-size:23px;"">系統錯誤：</p>");
+
+                        htmlContent.AppendLine("<p>");
+                        htmlContent.AppendLine("錯誤分類：" + sKind);
+                        htmlContent.AppendLine("</p>");
+
+                        htmlContent.AppendLine(@"<div style=""border:solid #ccc 1px;padding:10px;"">");
+
+                        int index = 1;
+                        foreach (var key in data.Keys)
+                        {
+                            htmlContent.AppendLine("<p>");
+                            htmlContent.AppendLine(string.Format("{0}:{1}", key, data[key]));
+                            htmlContent.AppendLine("</p>");
+
+                            index++;
+                        }
+
+                        htmlContent.AppendLine("</div>");
+                        htmlContent.AppendLine("</div>");
+
+                        XMLClass oXMLeParamts = new XMLClass();
                         string eToWho1 = oXMLeParamts.GetParaXml("eToWho");
                         string eFromWho1 = oXMLeParamts.GetParaXml("eFromWho");
-                        if (PublicMethodFramework35.Repositoies.WorkType == PublicMethodFramework35.Enums.WorkProcessType.Release)
-                        {
-                            AutoEMail(eToWho1, "", eFromWho1, "", "[" + sProgramKey + "]" + data["ProgramMotion"].ToString());
-                        }
+                        AutoEMail(eToWho1, "", eFromWho1, "", htmlContent.ToString());
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine(ex.Message);
                         data["ProgramMotion"] = sMsn1 + " [SMTP被防守住!!]" + "[" + ex + "]";
                         InsertDataNonKey("LogsAll", data);
                     }
                 }
 
                 data = null;
+                System.Threading.Thread.Sleep(20);
             }
 
             /// <summary>
@@ -226,40 +272,51 @@ namespace NSysDB
             /// </summary>
             /// <param name="TableName">Table名稱</param>
             /// <param name="Data"></param>
-            public void InsertDataNonKey(string TableName, System.Collections.Hashtable Data)
+            public string InsertDataNonKey(string TableName, System.Collections.Hashtable Data, Exception exp = null)
             {
+                string resultMsg = "";
                 object objTemp;
                 string strColumn = "", strValue = "";
                 string strSQL = "";
                 using (SqlCommand cmd = new SqlCommand())
                 {
-                    foreach (string strKey in Data.Keys)
+                    try
                     {
-                        strColumn += ", " + strKey;
-                        strValue += ", @" + strKey;
-                        if (Data[strKey] == null)
+                        if (exp != null)
+                            throw exp;
+                        foreach (string strKey in Data.Keys)
                         {
-                            objTemp = DBNull.Value;
+                            strColumn += ", " + strKey;
+                            strValue += ", @" + strKey;
+                            if (Data[strKey] == null)
+                            {
+                                objTemp = DBNull.Value;
+                            }
+                            else
+                            {
+                                objTemp = Data[strKey];
+                            }
+                            cmd.Parameters.AddWithValue("@" + strKey, objTemp);
                         }
-                        else
+                        if (strColumn.Substring(0, 2) == ", ")
                         {
-                            objTemp = Data[strKey];
+                            strColumn = strColumn.Substring(2);
                         }
-                        cmd.Parameters.AddWithValue("@" + strKey, objTemp);
+                        if (strValue.Substring(0, 2) == ", ")
+                        {
+                            strValue = strValue.Substring(2);
+                        }
+                        strSQL = "Insert Into " + TableName + " (" + strColumn + ") Values (" + strValue + ");";
+                        cmd.CommandText = strSQL;
+                        dbNTSQL.ExecuteNonQuery(cmd);
                     }
-                    if (strColumn.Substring(0, 2) == ", ")
+                    catch (Exception ex)
                     {
-                        strColumn = strColumn.Substring(2);
+                        resultMsg = ex.Message;
                     }
-                    if (strValue.Substring(0, 2) == ", ")
-                    {
-                        strValue = strValue.Substring(2);
-                    }
-                    strSQL = "Insert Into " + TableName + " (" + strColumn + ") Values (" + strValue + ");";
-                    cmd.CommandText = strSQL;
-                    dbNTSQL.ExecuteNonQuery(cmd);
                 }
-                return;
+                System.Threading.Thread.Sleep(5);
+                return resultMsg;
             }
 
             /// <summary>
@@ -465,6 +522,7 @@ namespace NSysDB
                     SmtpServer.Credentials = new System.Net.NetworkCredential(@"einvsrv", "15963");
 
                     SmtpServer.Send(mail);
+                    Console.WriteLine("寄信成功");
                     strResult = "執行成功!!";
                 }
                 return strResult;
@@ -950,6 +1008,8 @@ namespace NSysDB
                 {
                     s0401DCountAll = dvResult0401Dbb.Count.ToString();
                 }
+                else
+                    throw new Exception("發票：" + MInvoiceNumberS + " 查無明細 無法產生PDF");
 
                 #endregion 發票內容
 
@@ -981,8 +1041,6 @@ namespace NSysDB
                 //    //}
                 //}
 
-
-
                 if (dvResult0401Dbb != null)
                 {
                     doc.Add(new Paragraph(10f, "品名     單價     數量    金額 :(未稅)\n", ChFont9B));
@@ -1004,11 +1062,9 @@ namespace NSysDB
                         //doc.Add(new Paragraph(10f, "單價 : " + Convert.ToDouble(dvResult0401Dbb.Table.Rows[di.Key]["DUnitPrice"]).ToString("0.00") + "  數量 : " + Convert.ToString(dvResult0401Dbb.Table.Rows[di.Key]["DQuantity"]) + "  金額 : " + Convert.ToString(dvResult0401Dbb.Table.Rows[di.Key]["DAmount"]) + "\n", ChFont9B));
                         string pirceInfo = string.Concat(uniPrice, quantity, amount);
                         doc.Add(new Paragraph(10f, pirceInfo, ChFont9B));
-
                     }
                     //}
                 }
-
 
                 doc.Add(new Paragraph(10f, "應稅額:" + sASalesAmount + " 免稅額:" + sAFreeTaxSalesAmount + " 稅額:" + sATaxAmount + "\n", ChFont9B));
                 doc.Add(new Paragraph(14f, "總計 $" + sATotalAmount + "\n", ChFont9B));
@@ -1210,14 +1266,15 @@ namespace NSysDB
 
                 string s1dim = "";
                 DataView dvResultDim = null;
-                dvResultDim = Kind1SelectTbl2("dbo.C0401H.MInvoiceNumber, CONCAT((SUBSTRING(dbo.C0401H.MInvoiceDate, 1, 4) - 1911), dbo.SParameter.eMemo, dbo.C0401H.MInvoiceNumber, dbo.C0401H.MRandomNumber)  AS myMaps", "dbo.SParameter RIGHT OUTER JOIN dbo.C0401H ON dbo.SParameter.eSN = SUBSTRING(dbo.C0401H.MInvoiceDate, 5, 2)", "MInvoiceNumber='" + MInvoiceNumberS + "'", "", "");
+                dvResultDim = Kind1SelectTbl2("dbo.C0401H.MInvoiceNumber,(CONVERT(nvarchar(50), SUBSTRING(dbo.C0401H.MInvoiceDate, 1, 4) - 1911) +dbo.SParameter.eMemo + dbo.C0401H.MInvoiceNumber + dbo.C0401H.MRandomNumber)  AS myMaps", "dbo.SParameter RIGHT OUTER JOIN dbo.C0401H ON dbo.SParameter.eSN = SUBSTRING(dbo.C0401H.MInvoiceDate, 5, 2)", "MInvoiceNumber='" + MInvoiceNumberS + "'", "", "");
+
                 if (dvResultDim != null)
                 {
                     s1dim = dvResultDim.Table.Rows[0]["myMaps"].ToString();
                 }
                 else
                 {
-                    dvResultDim = Kind1SelectTbl2("dbo.A0401H.MInvoiceNumber, CONCAT((SUBSTRING(dbo.A0401H.MInvoiceDate, 1, 4) - 1911), dbo.SParameter.eMemo, dbo.A0401H.MInvoiceNumber, dbo.A0401H.MRandomNumber)  AS myMaps", "dbo.SParameter RIGHT OUTER JOIN dbo.A0401H ON dbo.SParameter.eSN = SUBSTRING(dbo.A0401H.MInvoiceDate, 5, 2)", "MInvoiceNumber='" + MInvoiceNumberS + "'", "", "");
+                    dvResultDim = Kind1SelectTbl2("dbo.A0401H.MInvoiceNumber, (CONVERT(nvarchar(50), SUBSTRING(dbo.A0401H.MInvoiceDate, 1, 4) - 1911) +dbo.SParameter.eMemo + dbo.A0401H.MInvoiceNumber +dbo.A0401H.MRandomNumber)  AS myMaps", "dbo.SParameter RIGHT OUTER JOIN dbo.A0401H ON dbo.SParameter.eSN = SUBSTRING(dbo.A0401H.MInvoiceDate, 5, 2)", "MInvoiceNumber='" + MInvoiceNumberS + "'", "", "");
                     if (dvResultDim != null)
                     {
                         s1dim = dvResultDim.Table.Rows[0]["myMaps"].ToString();
@@ -1445,6 +1502,8 @@ namespace NSysDB
                     {
                         s0401DCount = dvResult0401D.Count.ToString();
                     }
+                    else
+                        throw new Exception("發票：" + MInvoiceNumberS + " 無法取得明細內容");
                 }
 
                 dvResultTemp = Kind1SelectTbl2("eName", "SParameter", "eKind='eMapPaths' AND eSN='2'", "", "");
@@ -1456,6 +1515,7 @@ namespace NSysDB
                 #endregion 取資料
 
                 #region 明細內容
+
                 #region 發票紙張尺寸設定相關參數 20171107 by俊晨
 
                 //pdf 預設寬度 數字越大越寬
@@ -1470,7 +1530,6 @@ namespace NSysDB
                 float detailsTotalHeight = 43f;
 
                 #region 設定pdf紙張大小 依照資料多寡
-
 
                 //取明細資料 依明細筆數增加紙張長度 20171114新增判斷多行判斷
                 Dictionary<int, List<string>> sDetailsList = new Dictionary<int, List<string>>();
@@ -1491,9 +1550,11 @@ namespace NSysDB
 
                 defaultDocHeight += detailsTotalHeight;
                 defaultDocHeight = 255f;
+
                 #endregion 設定pdf紙張大小 依照資料多寡
 
                 #endregion 發票紙張尺寸設定相關參數 20171107 by俊晨
+
                 //Document doc = new Document(new iTextSharp.text.Rectangle(162f, 225f), 0, 0, 0, 0);
                 Document doc = new Document(new iTextSharp.text.Rectangle(defaultDocWidth, defaultDocHeight), 0, 0, 0, 0);
                 string sPDFpath = sPdfPath + MInvoiceNumberS + ".pdf";
@@ -1580,11 +1641,9 @@ namespace NSysDB
                         //doc.Add(new Paragraph(10f, "單價 : " + Convert.ToDouble(dvResult0401Dbb.Table.Rows[di.Key]["DUnitPrice"]).ToString("0.00") + "  數量 : " + Convert.ToString(dvResult0401Dbb.Table.Rows[di.Key]["DQuantity"]) + "  金額 : " + Convert.ToString(dvResult0401Dbb.Table.Rows[di.Key]["DAmount"]) + "\n", ChFont9B));
                         string pirceInfo = string.Concat(uniPrice, quantity, amount);
                         doc.Add(new Paragraph(10f, pirceInfo, ChFont9B));
-
                     }
                     //}
                 }
-
 
                 //doc.Add(new Paragraph(14f, "共 " + dvResult0401D.Count.ToString() + "項  合計 $" + sATotalAmount + "\n", ChFont11B));
                 //doc.Add(new Paragraph(10f, "應稅額:" + sASalesAmount + " 免稅額:" + sAFreeTaxSalesAmount + " 稅額:" + sATaxAmount + "\n", ChFont9B));
@@ -2093,7 +2152,6 @@ namespace NSysDB
                             iDAmount = iDAmount + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DAmount"]);
                             iDTax = iDTax + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DTax"]);
                         }
-
                         doc.Add(new Paragraph(3f, "\n", ChFont9B));
                         doc.Add(new Paragraph(3f, "\n", ChFont9B));
 
@@ -2104,6 +2162,8 @@ namespace NSysDB
                         doc.Add(new Paragraph(10f, "稅    額 : " + iDTax.ToString(), ChFont9B));
                         doc.Add(new Paragraph(3f, "\n", ChFont9B));
                     }
+                    else
+                        throw new Exception(sTBKind + "：" + MAllowanceNumber + " 產生PDF時 查無明細資料 ");
 
                     doc.Add(new Paragraph(3f, "\n", ChFont9B));
                     doc.Add(new Paragraph(3f, "\n", ChFont9B));

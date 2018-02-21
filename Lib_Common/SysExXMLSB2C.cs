@@ -22,7 +22,12 @@ namespace NSysDB
                     string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                     DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "C0401SN='" + C0401SN + "'", "", "");
-
+                    bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceDate"]));
+                    if (!validInvoiceDate)
+                    {
+                        GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "發票日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceDate"]), MInvoiceNumber, 23);
+                        return false;
+                    }
                     string strXMLAll = "", strXMLM = "", strXMLD = "", strXMLA = "";
                     strXMLM = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine
                           //+ "<Invoice xmlns=\"urn:GEINV:eInvoiceMessage:C0401:3.1\"/>" + Environment.NewLine
@@ -46,7 +51,7 @@ namespace NSysDB
                           + "<Address>" + Convert.ToString(dvResultM.Table.Rows[0]["MSAddress"]) + "</Address>" + Environment.NewLine
                           //+ "<!-- 賣方 營業人負責人姓名 -->" + Environment.NewLine 20171116 append by 俊晨
                           + "<PersonInCharge>" + Convert.ToString(dvResultM.Table.Rows[0]["MSPersonInCharge"]) + "</PersonInCharge>" + Environment.NewLine
-                          
+
                     #region 因稅籍檔並未有電話與傳真 自我檢測時至將會無法通過 先註解 需要再解除註解 20171116 append by 俊晨
 
                           /*
@@ -111,20 +116,18 @@ namespace NSysDB
                     if ((sumAmount + Convert.ToInt32(dvResultM.Table.Rows[0]["ATaxAmount"])) != totalAmount)
                         throw new Exception(
                             string.Format(
-                                @"金額總計與明細不相符，停止XML生成作業<br/> 
-                                {0} {1}：  
-                                
-                                明細金額：{2} <br/> 
-                                稅額：{3} <br/> 
+                                @"金額總計與明細不相符，停止XML生成作業<br/>
+                                {0} {1}：
+
+                                明細金額：{2} <br/>
+                                稅額：{3} <br/>
                                 加總金額： {4}",
                             sKind0up, Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]), sumAmount, Convert.ToInt32(dvResultM.Table.Rows[0]["ATaxAmount"]), totalAmount));
 
                     #endregion 判斷金額總計是否相符
 
-
                     if (string.IsNullOrEmpty(Convert.ToString(dvResultM.Table.Rows[0]["ATaxType"])))
                         throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceNumber"]) + "發票稅別為空值，停止XML生成作業。");
-
 
                     strXMLA = "</Details>" + Environment.NewLine
                    + "<Amount>" + Environment.NewLine
@@ -174,6 +177,19 @@ namespace NSysDB
                 string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                 DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "C0501SN='" + ASN + "'", "", "");
+                bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]));
+                if (!validInvoiceDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "原發票日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
+
+                bool validInvoiceCancelDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["CancelDate"]));
+                if (!validInvoiceCancelDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "發票作廢日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["CancelDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
 
                 if (dvResultM != null)
                 {
@@ -218,6 +234,18 @@ namespace NSysDB
                 string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                 DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "C0701SN='" + ASN + "'", "", "");
+                bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]));
+                if (!validInvoiceDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "原發票日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["InvoiceDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
+                bool validInvoiceCancelDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["VoidDate"]));
+                if (!validInvoiceCancelDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "註銷日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["VoidDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
 
                 if (dvResultM != null)
                 {
@@ -258,6 +286,8 @@ namespace NSysDB
             {
                 //要有Details才生成XML
                 DataView dvResultD = Kind1SelectTbl2("", "D0401D", "MAllowanceNumber='" + MInvoiceNumber + "'", "DAllowanceSequenceNumber", "");
+
+
                 Console.WriteLine(MInvoiceNumber);
                 if (dvResultD != null)
                 {
@@ -265,7 +295,12 @@ namespace NSysDB
                     string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                     DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "D0401SN='" + D0401SN + "'", "", "");
-
+                    bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceDate"]));
+                    if (!validInvoiceDate)
+                    {
+                        GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "折讓證明單日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceDate"]), MInvoiceNumber, 23);
+                        return false;
+                    }
                     string strXMLAll = "", strXMLM = "", strXMLD = "", strXMLA = "";
                     strXMLM = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine
                           //+ "<Invoice xmlns=\"urn:GEINV:eInvoiceMessage:C0401:3.1\"/>" + Environment.NewLine
@@ -298,7 +333,6 @@ namespace NSysDB
 
                     for (int i = 0; i < dvResultD.Count; i++)
                     {
-
                         if (string.IsNullOrEmpty(Convert.ToString(dvResultD.Table.Rows[i]["DTaxType"])))
                             throw new Exception(sKind0up + "：" + Convert.ToString(dvResultM.Table.Rows[0]["MAllowanceNumber"]) + "發票稅別為空值，停止XML生成作業。");
 
@@ -354,6 +388,18 @@ namespace NSysDB
                 string sFPathN = oXMLeParamts.GetParaXml("ExXMLPa");
 
                 DataView dvResultM = Kind1SelectTbl2("", sKind0upAll, "D0501SN='" + ASN + "'", "", "");
+                bool validInvoiceDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["AllowanceDate"]));
+                if (!validInvoiceDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "原折讓證明單日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["AllowanceDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
+                bool validInvoiceCancelDate = ValidIsDate(Convert.ToString(dvResultM.Table.Rows[0]["CancelDate"]));
+                if (!validInvoiceCancelDate)
+                {
+                    GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, sKind0up, "折讓證明單作廢日期過早，不上傳至turnkey，日期：" + Convert.ToString(dvResultM.Table.Rows[0]["CancelDate"]), MInvoiceNumber, 23);
+                    return false;
+                }
 
                 if (dvResultM != null)
                 {

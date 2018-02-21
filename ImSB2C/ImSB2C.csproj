@@ -63,6 +63,10 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EinvoiceUnity\EinvoiceUnity.csproj">
+      <Project>{F1AECA00-AE1A-4FBD-8B45-BC2FFB043690}</Project>
+      <Name>EinvoiceUnity</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Lib_Common\Lib_Common.csproj">
       <Project>{5631e331-836b-41db-8684-1da46ab286dc}</Project>
       <Name>Lib_Common</Name>
