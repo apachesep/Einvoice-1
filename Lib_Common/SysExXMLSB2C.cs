@@ -74,7 +74,7 @@ namespace NSysDB
                           //+ "<!-- 發票類別 -->" + Environment.NewLine
                           + "<InvoiceType>" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceType"]) + "</InvoiceType>" + Environment.NewLine
                           //+ "<!-- 捐贈註記 -->" + Environment.NewLine
-                          + "<DonateMark>" + Convert.ToString(dvResultM.Table.Rows[0]["MDonateMark"]) + "</DonateMark>" + Environment.NewLine
+                          + "<DonateMark><![CDATA[" + Convert.ToString(dvResultM.Table.Rows[0]["MDonateMark"]) + "]]></DonateMark>" + Environment.NewLine
                           //+ "<!-- 載具類別號碼 -->" + Environment.NewLine 20171116 append by 俊晨
                           + "<CarrierType>" + Convert.ToString(dvResultM.Table.Rows[0]["MCarrierType"]) + "</CarrierType>" + Environment.NewLine
                           //+ "<!-- 載具顯碼id -->" + Environment.NewLine 20171116 append by 俊晨
@@ -211,7 +211,7 @@ namespace NSysDB
                           //+ "<!-- 發票作廢時間 -->" + Environment.NewLine
                           + "<CancelTime>" + Convert.ToString(dvResultM.Table.Rows[0]["CancelTime"]) + "</CancelTime>" + Environment.NewLine
                           //+ "<!-- 發票作廢原因 -->" + Environment.NewLine
-                          + "<CancelReason>" + Convert.ToString(dvResultM.Table.Rows[0]["CancelReason"]) + "</CancelReason>" + Environment.NewLine
+                          + "<CancelReason><![CDATA[" + Convert.ToString(dvResultM.Table.Rows[0]["CancelReason"]) + "]]></CancelReason>" + Environment.NewLine
                           //+ "<!-- 專案作廢核准文號 -->" + Environment.NewLine
                           + "<ReturnTaxDocumentNumber>" + Convert.ToString(dvResultM.Table.Rows[0]["ReturnTaxDocumentNumber"]) + "</ReturnTaxDocumentNumber>" + Environment.NewLine
                           + "</CancelInvoice>" + Environment.NewLine;
@@ -267,7 +267,8 @@ namespace NSysDB
                           //+ "<!-- 註銷時間 -->" + Environment.NewLine
                           + "<VoidTime>" + Convert.ToString(dvResultM.Table.Rows[0]["VoidTime"]) + "</VoidTime>" + Environment.NewLine
                           //+ "<!-- 註銷原因 -->" + Environment.NewLine
-                          + "<VoidReason>" + Convert.ToString(dvResultM.Table.Rows[0]["VoidReason"]) + "</VoidReason>" + Environment.NewLine
+                          + "<VoidReason><![CDATA[" + Convert.ToString(dvResultM.Table.Rows[0]["VoidReason"]) + "]]></VoidReason>" + Environment.NewLine
+
                           + "</VoidInvoice>" + Environment.NewLine;
 
                     StreamWriter sw = new StreamWriter(sFPathN + sKind0up + "_" + MInvoiceNumber + ".XML");
@@ -421,7 +422,8 @@ namespace NSysDB
                           //+ "<!-- 折讓證明單作廢時間 -->" + Environment.NewLine
                           + "<CancelTime>" + Convert.ToString(dvResultM.Table.Rows[0]["CancelTime"]) + "</CancelTime>" + Environment.NewLine
                           //+ "<!-- 折讓證明單作廢原因 -->" + Environment.NewLine
-                          + "<CancelReason>" + Convert.ToString(dvResultM.Table.Rows[0]["CancelReason"]) + "</CancelReason>" + Environment.NewLine
+                          + "<CancelReason><![CDATA[" + Convert.ToString(dvResultM.Table.Rows[0]["CancelReason"]) + "]]></CancelReason>" + Environment.NewLine
+
                           + "</CancelAllowance>" + Environment.NewLine;
 
                     StreamWriter sw = new StreamWriter(sFPathN + sKind0up + "_" + MInvoiceNumber + ".XML");

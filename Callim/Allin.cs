@@ -284,7 +284,6 @@ public class Allin
     //        }
     //    }
 
-
     //}
 
     public void Begin(string parameter)
@@ -300,7 +299,6 @@ public class Allin
 
         try
         {
-
             //2-設定要處理的發票類別
             List<string> getEinvoiceTypes = new List<string>() { "A0401", "A0501", "A0601", "B0401", "B0501", "C0401", "D0501", "D0401", "C0501", "C0701" };
 
@@ -448,7 +446,6 @@ public class Allin
                 query.GoLogsAll(sPgSN, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, "[程序五]被中斷", ex.ToString(), "", 61);
             }
             Console.WriteLine("發生未知錯誤：" + ex.Message);
-
         }
     }
 }
