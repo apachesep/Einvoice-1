@@ -11,7 +11,7 @@ namespace APT
         [STAThread]
         private static void Main(string[] args)
         {
-            //args = new string[] { "111111" };
+            //args = new string[] { "BW12213612" };
 
             #region 列印發票
             try
@@ -36,14 +36,17 @@ namespace APT
                     string eToWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eToWhoRinnai");
                     string eFromWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eFromWho");
                     PublicMethodFramework35.Repositoies.AutoEMail(eToWho1, "", eFromWho1, "", mailBody);
+                    PublicMethodFramework35.Repositoies.SaveMesagesToTextFile("錯誤訊息：" + mailBody);
+
                 }
             }
             catch (Exception ex)
             {
-                string mailBody = string.Format("[電子發票] <br> 錯誤訊息：{0}", "列印發票出現未知錯誤：{1}", args[0], ex.Message);
+                string mailBody = string.Format("[電子發票] <br> 錯誤訊息：{0} 列印發票出現未知錯誤：{1} ", args[0], ex.Message);
                 string eToWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eToWhoRinnai");
                 string eFromWho1 = PublicMethodFramework35.Repositoies.GetParaXml("eFromWho");
                 PublicMethodFramework35.Repositoies.AutoEMail(eToWho1, "", eFromWho1, "", mailBody);
+                PublicMethodFramework35.Repositoies.SaveMesagesToTextFile("錯誤訊息：" + mailBody);
                 throw ex;
             }
         }

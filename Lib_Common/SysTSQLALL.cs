@@ -2129,38 +2129,108 @@ namespace NSysDB
                     doc.Add(new Paragraph(3f, "\n", ChFontW01));
                     doc.Add(new Paragraph(3f, "\n", ChFontW01));
 
+
+
                     if (dvResult0401D != null)
                     {
                         Int64 iDAmount = 0;
                         Int64 iDTax = 0;
-                        for (int i = 0; i < dvResult0401D.Count; i++)
+                        //B2B折讓單  顯示單價、未稅、稅額、含稅
+                        if (sTBKind == "B0401H")
                         {
-                            string sDTaxType = Convert.ToString(dvResult0401D.Table.Rows[i]["DTaxType"]);
-                            string sDTaxTypeN = GetTaxTypeCodeByTaxTypeID(sDTaxType);
+                            for (int i = 0; i < dvResult0401D.Count; i++)
+                            {
+                                string sDTaxType = Convert.ToString(dvResult0401D.Table.Rows[i]["DTaxType"]);
+                                string sDTaxTypeN = GetTaxTypeCodeByTaxTypeID(sDTaxType);
 
-                            string sDOriginalInvoiceDate = dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(0, 4) + "-" + dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(4, 2) + "-" + dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(6, 2);
-                            string sDQuantity = Convert.ToDouble(dvResult0401D.Table.Rows[i]["DUnitPrice"]).ToString("0.00");
-                            doc.Add(new Paragraph(10f, "發票號碼 : " + Convert.ToString(dvResult0401D.Table.Rows[i]["DOriginalInvoiceNumber"]) + "\n", ChFont12B));
+                                int sDQuantity = Convert.ToInt32(dvResult0401D.Table.Rows[i]["DQuantity"]);
+                                string sDOriginalInvoiceDate = dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(0, 4) + "-" + dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(4, 2) + "-" + dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(6, 2);
+                                string sDunitPrice = Convert.ToDouble(dvResult0401D.Table.Rows[i]["DUnitPrice"]).ToString("0.00");
+                                string sDTax = Convert.ToInt64(dvResult0401D.Table.Rows[i]["DTax"]).ToString();
+                                string sDAmount = Convert.ToInt64(dvResult0401D.Table.Rows[i]["DAmount"]).ToString();
+
+                                doc.Add(new Paragraph(10f, "發票號碼 : " + Convert.ToString(dvResult0401D.Table.Rows[i]["DOriginalInvoiceNumber"]) + "\n", ChFont12B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(10f, "發票開立日期 : " + sDOriginalInvoiceDate + "\n", ChFont12B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(10f, Convert.ToString(dvResult0401D.Table.Rows[i]["DOriginalDescription"]) + "\n", ChFont9B));
+                                //增加顯示單價、未稅、稅額、含稅
+                                string centerFirstEmpty = "               ";
+                                string centerSecondEmpty = "                ";
+                                int ssDunitPriceLength = sDunitPrice.Length;
+                                int sDAmountLength = sDAmount.Length;
+
+                                int emptyFirstLength = (centerFirstEmpty.Length - ssDunitPriceLength) + 1;
+                                int emptySecondLength = (centerSecondEmpty.Length - sDAmountLength) + 1;
+                                string setFirstEmpty = "";
+                                string setSecondEmpty = "";
+                                for (int j = 0; j < emptyFirstLength; j++)
+                                {
+                                    setFirstEmpty += " ";
+                                }
+                                for (int j = 0; j < emptySecondLength; j++)
+                                {
+                                    setSecondEmpty += " ";
+                                }
+
+                                //doc.Add(new Paragraph(10f, "數量、     單價、         未稅 \n", ChFont9B));
+                                doc.Add(new Paragraph(10f, "   " + sDQuantity + setFirstEmpty + sDunitPrice + setSecondEmpty + sDAmount + "\n", ChFont9B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+
+                                //doc.Add(new Paragraph(10f, "稅額 \n", ChFont9B));
+                                doc.Add(new Paragraph(10f, "稅額 " + sDTax + "        " + (Convert.ToDouble(sDAmount) + Convert.ToDouble(sDTax)).ToString() + "  " + sDTaxTypeN + "\n", ChFont9B));
+
+
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                //單價
+                                iDAmount = iDAmount + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DAmount"]);
+                                //稅額
+                                iDTax = iDTax + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DTax"]);
+                            }
                             doc.Add(new Paragraph(3f, "\n", ChFont9B));
                             doc.Add(new Paragraph(3f, "\n", ChFont9B));
-                            doc.Add(new Paragraph(10f, "發票開立日期 : " + sDOriginalInvoiceDate + "\n", ChFont12B));
+
+                            doc.Add(new Paragraph(10f, "總    計 : " + (iDAmount + iDTax).ToString(), ChFont9B));
                             doc.Add(new Paragraph(3f, "\n", ChFont9B));
-                            doc.Add(new Paragraph(10f, Convert.ToString(dvResult0401D.Table.Rows[i]["DOriginalDescription"]) + "\n", ChFont9B));
-                            doc.Add(new Paragraph(10f, "    " + Convert.ToString(dvResult0401D.Table.Rows[i]["DQuantity"]) + "    " + sDQuantity + "    " + Convert.ToString(dvResult0401D.Table.Rows[i]["DAmount"]) + "  " + sDTaxTypeN + "\n", ChFont9B));
+                            doc.Add(new Paragraph(10f, "未稅金額 : " + iDAmount.ToString(), ChFont9B));
                             doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                            doc.Add(new Paragraph(10f, "稅    額 : " + iDTax.ToString(), ChFont9B));
                             doc.Add(new Paragraph(3f, "\n", ChFont9B));
-                            iDAmount = iDAmount + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DAmount"]);
-                            iDTax = iDTax + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DTax"]);
+
                         }
-                        doc.Add(new Paragraph(3f, "\n", ChFont9B));
-                        doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                        else
+                        {
+                            for (int i = 0; i < dvResult0401D.Count; i++)
+                            {
+                                string sDTaxType = Convert.ToString(dvResult0401D.Table.Rows[i]["DTaxType"]);
+                                string sDTaxTypeN = GetTaxTypeCodeByTaxTypeID(sDTaxType);
 
-                        doc.Add(new Paragraph(10f, "總    計 : " + (iDAmount + iDTax).ToString(), ChFont9B));
-                        doc.Add(new Paragraph(3f, "\n", ChFont9B));
-                        doc.Add(new Paragraph(10f, "未稅金額 : " + iDAmount.ToString(), ChFont9B));
-                        doc.Add(new Paragraph(3f, "\n", ChFont9B));
-                        doc.Add(new Paragraph(10f, "稅    額 : " + iDTax.ToString(), ChFont9B));
-                        doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                string sDOriginalInvoiceDate = dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(0, 4) + "-" + dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(4, 2) + "-" + dvResult0401D.Table.Rows[i]["DOriginalInvoiceDate"].ToString().Substring(6, 2);
+                                string sDQuantity = Convert.ToDouble(dvResult0401D.Table.Rows[i]["DUnitPrice"]).ToString("0.00");
+                                doc.Add(new Paragraph(10f, "發票號碼 : " + Convert.ToString(dvResult0401D.Table.Rows[i]["DOriginalInvoiceNumber"]) + "\n", ChFont12B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(10f, "發票開立日期 : " + sDOriginalInvoiceDate + "\n", ChFont12B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(10f, Convert.ToString(dvResult0401D.Table.Rows[i]["DOriginalDescription"]) + "\n", ChFont9B));
+                                doc.Add(new Paragraph(10f, "    " + Convert.ToString(dvResult0401D.Table.Rows[i]["DQuantity"]) + "    " + sDQuantity + "    " + Convert.ToString(dvResult0401D.Table.Rows[i]["DAmount"]) + "  " + sDTaxTypeN + "\n", ChFont9B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                                iDAmount = iDAmount + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DAmount"]);
+                                iDTax = iDTax + Convert.ToInt64(dvResult0401D.Table.Rows[i]["DTax"]);
+                            }
+                            doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                            doc.Add(new Paragraph(3f, "\n", ChFont9B));
+
+                            doc.Add(new Paragraph(10f, "總    計 : " + (iDAmount + iDTax).ToString(), ChFont9B));
+                            doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                            doc.Add(new Paragraph(10f, "未稅金額 : " + iDAmount.ToString(), ChFont9B));
+                            doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                            doc.Add(new Paragraph(10f, "稅    額 : " + iDTax.ToString(), ChFont9B));
+                            doc.Add(new Paragraph(3f, "\n", ChFont9B));
+                        }
                     }
                     else
                         throw new Exception(sTBKind + "：" + MAllowanceNumber + " 產生PDF時 查無明細資料 ");
