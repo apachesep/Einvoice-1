@@ -9,7 +9,7 @@ class AllXML
     {
         try
         {
-            //程序一 : //生成 B2B XML
+            //程序一 : //生成 B2B XML//
             ExA0401 a0401 = new ExA0401();
             a0401.Begin("a0401");
 
