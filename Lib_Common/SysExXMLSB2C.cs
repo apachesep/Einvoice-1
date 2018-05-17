@@ -68,8 +68,9 @@ namespace NSysDB
                           + "<Buyer>" + Environment.NewLine
                           //+ "<!-- 買方-營業人統一編號  B2C買方則填入10個0 -->" + Environment.NewLine 20171116 append by 俊晨 append實際統編，非10個0
                           + "<Identifier>" + Convert.ToString(dvResultM.Table.Rows[0]["MBIdentifier"]) + "</Identifier>" + Environment.NewLine
-                          //+ "<!-- 買方-營業人名稱  B2C買方則填入4個0 -->" + Environment.NewLine 20171116 append by 俊晨 append實際營業人名稱，非4個0
-                          + "<Name>" + Convert.ToString(dvResultM.Table.Rows[0]["MBName"]) + "</Name>" + Environment.NewLine
+                            //+ "<!-- 買方-營業人名稱  B2C買方則填入4個0 -->" + Environment.NewLine 20171116 append by 俊晨 append實際營業人名稱，非4個0
+                            + "<Name><![CDATA[" + Convert.ToString(dvResultM.Table.Rows[0]["MBName"]) + "]]></Name>" + Environment.NewLine
+
                           + "</Buyer>" + Environment.NewLine
                           //+ "<!-- 發票類別 -->" + Environment.NewLine
                           + "<InvoiceType>" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceType"]) + "</InvoiceType>" + Environment.NewLine
