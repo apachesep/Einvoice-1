@@ -2,6 +2,7 @@
 using System.Data;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace NSysDB
 {
@@ -22,6 +23,14 @@ namespace NSysDB
                 double totalSeconds = new TimeSpan(dateTime.Ticks - today.Ticks).TotalSeconds;
                 bool valid = totalSeconds <= 0;
                 return valid;
+            }
+
+            private string ConvertStringToBig5(string str)
+            {
+                byte[] Dbyte = System.Text.Encoding.UTF8.GetBytes(str);
+                int DefaultCodePage = Encoding.UTF8.CodePage;
+                string Dstring = System.Text.Encoding.UTF8.GetString(Dbyte);
+                return Dstring;
             }
 
             //存證B2B-----S
@@ -82,8 +91,9 @@ namespace NSysDB
                           + "<Buyer>" + Environment.NewLine
                           //+ "<!-- B2B 買方-營業人統一編號  B2C買方則填入10個0 -->" + Environment.NewLine
                           + "<Identifier>" + Convert.ToString(dvResultM.Table.Rows[0]["MBIdentifier"]) + "</Identifier>" + Environment.NewLine
-                          //+ "<!-- B2B 買方-營業人名稱  B2C買方則填入4個0 -->" + Environment.NewLine
-                          + "<Name>" + Convert.ToString(dvResultM.Table.Rows[0]["MBName"]) + "</Name>" + Environment.NewLine
+                            //+ "<!-- B2B 買方-營業人名稱  B2C買方則填入4個0 -->" + Environment.NewLine
+                            //+ "<Name><![CDATA[" + Convert.ToString(dvResultM.Table.Rows[0]["MBName"]) + "]]></Name>" + Environment.NewLine
+                            + "<Name><![CDATA[" + ConvertStringToBig5(Convert.ToString(dvResultM.Table.Rows[0]["MBName"])) + "]]></Name>" + Environment.NewLine
                           + "</Buyer>" + Environment.NewLine
                           //+ "<!-- 發票類別 -->" + Environment.NewLine
                           + "<InvoiceType>" + Convert.ToString(dvResultM.Table.Rows[0]["MInvoiceType"]) + "</InvoiceType>" + Environment.NewLine
