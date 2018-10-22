@@ -10,6 +10,7 @@ public class Program
         Exception error = null;
         try
         {
+            //20181022 test commit
             //using (System.IO.treamWriter file =
             //         new System.IO.StreamWriter(@"D:\GetDirID.txt", true))
             //{
